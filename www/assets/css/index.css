@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: #fff;
+    font-family: 'Roboto', sans-serif;
+}
+
+.container {
+    width: 100vw;
+    height: 470px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.box-1{
+    margin: 0 10px;
+    width: 430px;
+    height: 415px;
+    background: #fff;
+    display: grid;
+    border-radius: 15px;
+    place-items: center;
+    border: 1px solid blue;
+}
+
+h2{
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+form {
+    width: 75%;
+}
+
+input {
+    padding: 5px;
+    width: 100%;
+    height: 50px;
+    margin-bottom: 20px;
+    border-radius: 8px; 
+    border: 1px solid #003F63;
+}
+
+input#caixinha{
+    padding: 0px;
+    height: 15px;
+    width: 15px;
+    margin: 0px;
+    justify-items: start;
+}
+
+button.btn{
+    background-color: #026197;
+    margin-top: 35px;
+    width: 100%;
+    height: 40px;
+    cursor: pointer;
+    border: 1px solid #026197;
+    border-radius: 5px;
+    font-weight: bold;
+    color: #fff;
+}
+
+label#check{
+    float: left;
+    margin-top: 10px;
+}
+
+span{
+    float: right;
+    margin-top: 10px;
+}
+
+a{
+    text-decoration: none;
+}
+
+a:hover{
+    color: #5c5c5c;
+}
+
+img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;  
+    margin-top: 45px;
+    margin-bottom: -11px;
+}
+
+p{
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.voltar{
+    background-color: #026197;
+    text-align: center;
+    border-radius: 5px;
+    padding: 10px;
+    color: white;
+}
+
+
+#erro {
+    font-size: 70px;
+    color: #DC3545;
+    margin-bottom: 50px;
+}
+
+button.erro {
+    height: 60px;
+    font-size: 20px;
+}

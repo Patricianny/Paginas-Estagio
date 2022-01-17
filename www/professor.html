@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<style>
+* {box-sizing: border-box}
+
+/* Set height of body and the document to 100% */
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Style tab links */
+.tablink {
+  background-color: #555;
+  color: white;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  font-size: 17px;
+  width: 20%;
+  border-radius: 12px 12px 0 0;
+}
+
+.tablink:hover {
+  background-color: #777;
+}
+
+/* Style the tab content (and add height:100% for full page content) */
+.tabcontent {
+  color: black;
+  display: none;
+  padding: 100px 20px;
+  height: 100%;
+}
+
+table {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  padding: 1px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+
+td {
+  padding: 1px;
+  text-align: left;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tr:hover {
+  background-color: lightskyblue;
+}
+
+input[type=text] {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 2px;
+  font-size: 16px;
+  background-color: lightsteelblue;
+  
+  background-position: 10px 10px; 
+  background-repeat: no-repeat;
+  padding: 12px 20px 12px 40px;
+}
+
+#Mural {border: 3px solid lightskyblue;}
+#Turmas {border: 3px solid lightgreen;}
+#Alunos {border: 3px solid lightcyan;}
+#Historico {border: 3px solid lightseagreen;}
+#Configuracoes {border: 3px solid lightsalmon;}
+</style>
+
+<script src="comum.js"></script>
+<script>
+  function limparTabela(tabela){
+    while(tabela.rows.length>1){
+      tabela.deleteRow(1);
+    }
+  }
+
+  function consultaMatriculasTurmas(tabela, idturma){
+    matriculas = selectMatriculasTurmas('__ID__','__TOKEN__', idturma);
+
+    if(matriculas['result'] == 'LOGIN'){
+      location.replace('.');
+    }
+
+    limparTabela(tabela);
+
+    for (let linha in matriculas['dados']){
+      var row        = tabela.insertRow(-1);
+      var matricula  = row.insertCell(-1);
+      var nome       = row.insertCell(-1);
+      // var email      = row.insertCell(-1);
+
+      matricula.innerHTML = matriculas['dados'][linha]['matricula'];
+      nome.innerHTML      = matriculas['dados'][linha]['nome'];
+      // email.innerHTML     = matriculas['dados'][linha]['email'];
+    }
+  }
+
+  function atualizaTabelaTurmas(tabela, turmas){
+    turmas = selectTurmasAbertas('__ID__', '__TOKEN__');
+
+    if(turmas['result'] == 'LOGIN'){
+      location.replace('.');
+    }
+
+    // Vamos remover todas as linhas, exceto a primeira
+    limparTabela(tabela);
+
+    for (let linha in turmas['dados']){
+      var row     = tabela.insertRow(-1);
+      var editar  = row.insertCell(-1);
+      var alunos  = row.insertCell(-1);
+      var sigla   = row.insertCell(-1);
+      var nome    = row.insertCell(-1);
+      var periodo = row.insertCell(-1);
+      var remover = row.insertCell(-1);
+    
+      // Lembrar que além de sigla, nome e periodo também retorna o campo
+      // id de cada turma
+      editar.innerHTML  = "<center><button onclick=\"cadastraAtualizaTurma('"+ 
+        turmas['dados'][linha]['id']      + "', '" + 
+        turmas['dados'][linha]['sigla']   + "', '" + 
+        turmas['dados'][linha]['nome']    + "', '" + 
+        turmas['dados'][linha]['periodo'] +"')\" class='w3-button w3-yellow w3-round'>Editar</button></center>";
+      alunos.innerHTML  = "<center><button onclick=\"cadastrarListarAlunos('"+ 
+        turmas['dados'][linha]['id']      + "', '" + 
+        turmas['dados'][linha]['sigla']   + "', '" + 
+        turmas['dados'][linha]['nome']    + "', '" + 
+        turmas['dados'][linha]['periodo'] +"')\" class='w3-button w3-green w3-round'>Alunos</button></center>";
+      sigla.innerHTML   = turmas['dados'][linha]['sigla'];
+      nome.innerHTML    = turmas['dados'][linha]['nome'];
+      periodo.innerHTML = turmas['dados'][linha]['periodo'];
+      remover.innerHTML = "<center><button onclick=\"deleteTurma('__ID__', '__TOKEN__', '"+turmas['dados'][linha]['id']+"'); atualizaTabelaTurmas(document.getElementById('turmas'), turmas);\"  class='w3-button w3-red w3-round'>Remover</button></center>"
+    }
+  }
+  function cadastraTurma(){
+    r = cadTurma(
+      '__ID__',
+      '__TOKEN__',
+      document.getElementById('cadsigla').value,
+      document.getElementById('cadnome').value,
+      document.getElementById('cadperiodo').value
+    );
+          
+    if(r=='LOGIN'){
+      location.replace('.');
+    }else if (r=='OK'){
+      atualizaTabelaTurmas(document.getElementById('turmas'), turmas);
+      document.getElementById('id01').style.display='none';
+    } 
+  }
+
+  function atualizarTurma(id_turma){
+    var sigla = document.getElementById('cadsigla').value;
+    var nome  = document.getElementById('cadnome').value;  
+    var periodo = document.getElementById('cadperiodo').value;
+    r = updateTurma('__ID__', 
+                '__TOKEN__',
+                id_turma, 
+                sigla, 
+                nome, 
+                periodo, 
+                ''
+    );
+
+    if(r=='LOGIN'){
+      location.replace('.');
+    }else if (r=='OK'){
+      atualizaTabelaTurmas(document.getElementById('turmas'), turmas);
+      document.getElementById('id01').style.display='none';
+    } else {
+      window.alert(r);
+    }
+  }
+
+  function salvarAluno(id_aluno){
+    matricula = document.getElementById('cadMatricula').value;
+    nome = document.getElementById('cadNomeAluno').value;
+    email = document.getElementById('cadEmail').value;
+
+    updateAluno('__ID__', '__TOKEN__', id_aluno, matricula, nome, email);
+
+    document.getElementById('editarAluno').style.display='none';
+
+    buscarMostrarAlunos(document.getElementById('tbalunos'), document.getElementById('nomemat').value);
+  }
+
+  function atualizarAluno(id_aluno, matricula, nome, email){
+    document.getElementById('cadMatricula').value  = matricula;
+    document.getElementById('cadNomeAluno').value   = nome;
+    document.getElementById('cadEmail').value= email;
+
+    document.getElementById('btSalvarAluno').onclick=(function (){salvarAluno(id_aluno);});
+
+    document.getElementById('editarAluno').style.display='block';
+  }
+
+  function cadastraAtualizaTurma(id_turma, sigla, nome, periodo){
+    document.getElementById('cadsigla').value  = sigla;
+    document.getElementById('cadnome').value   = nome;  
+    document.getElementById('cadperiodo').value= periodo;
+    if (id_turma == 'None') {
+      document.getElementById('mdAddEdTurma').innerHTML = "<h2>Cadastrar Turma</h2>";
+      document.getElementById('btSalvar').onclick=(function (){cadastraTurma();});
+    } else {
+      document.getElementById('mdAddEdTurma').innerHTML = "<h2>Editar Turma</h2>";
+      document.getElementById('btSalvar').onclick=(function (){atualizarTurma(id_turma);});
+    }
+    document.getElementById('id01').style.display='block';
+  }
+
+  var globalId_turma;
+  function cadastrarListarAlunos(id_turma, sigla, nome, periodo){
+    globalId_turma = id_turma;
+    document.getElementById('modalTurmaAlunosHeader').innerHTML = "<h2>"+
+      "<center>"+sigla+"  "+nome+"  "+periodo+"</center>"
+      "</h2>";
+    document.getElementById('progressBarCadAlunos').style.visibility="hidden";
+    document.getElementById('fileCsvAlunos').value = "";
+    limparTabela(document.getElementById('tableTurmasAlunos'));
+    document.getElementById('modalTurmaAlunos').style.display='block';
+    consultaMatriculasTurmas(document.getElementById('tableTurmasAlunos'), id_turma);
+  }
+
+  var reader;
+  function carregouCsvAlunos(event){
+    var width = 0;
+    texto = reader.result.split(/\r\n|\r|\n/);
+    // Começamos por 1 para ignorar o cabeçalho
+    barra = document.getElementById('progressBarCadAlunos');
+    barra.style.width = width + "%";
+    barra.style.visibility="visible";
+    nelementos = texto.length - 1;
+    for (let i = 1; i<=nelementos; i++){
+      if(texto[i].length>0){
+        linha = texto[i].split(";");
+        if(linha.length==4){
+          // Aqui temos que chamar o backend para cadastrar o aluno
+          // e lançar direto na disciplina;
+          cadastrarMatricularAluno('__ID__', 
+            '__TOKEN__', 
+            globalId_turma,
+            linha[1], // Matricula
+            linha[2], // Nome
+            linha[3]  // e-mail
+          );
+          // console.log(texto[i]);
+        }
+      }
+      width = width + 100*(1/nelementos);
+      barra.style.width = width + "%";
+    }
+    consultaMatriculasTurmas(document.getElementById('tableTurmasAlunos'), globalId_turma);
+  }
+
+  function carregaCsvAlunos(arquivo, disciplina){
+    reader = new FileReader();
+    reader.onloadend = carregouCsvAlunos;
+    reader.readAsText(arquivo); // Lê UTF-8 por padrão
+  }
+
+  function buscarMostrarAlunos(tabela, chave){
+    limparTabela(tabela);
+    alunos = selectAlunos('__ID__', '__TOKEN__', chave);
+
+    if(alunos['result'] == 'LOGIN'){
+      location.replace('.');
+    }
+
+    limparTabela(tabela);
+
+    for (let linha in alunos['dados']){
+      var row         = tabela.insertRow(-1);
+      var editar      = row.insertCell(-1);
+      var disciplinas = row.insertCell(-1);
+      var matricula   = row.insertCell(-1);
+      var nome        = row.insertCell(-1);
+      var email       = row.insertCell(-1);
+      var remover     = row.insertCell(-1);
+
+      editar.innerHTML  = "<center><button onclick=\"atualizarAluno('"+ 
+        alunos['dados'][linha]['id_aluno']      + "', '" + 
+        alunos['dados'][linha]['matricula']   + "', '" + 
+        alunos['dados'][linha]['nome']    + "', '" + 
+        alunos['dados'][linha]['email']   +"')\" class='w3-button w3-yellow w3-round'>Editar</button></center>";
+      disciplinas.innerHTML  = "<center><button onclick=\"lstarDisciplinasAluno('"+ 
+        alunos['dados'][linha]['id_aluno']+"')\" class='w3-button w3-green w3-round'>Disciplinas</button></center>";
+      matricula.innerHTML = alunos['dados'][linha]['matricula'];
+      nome.innerHTML      = alunos['dados'][linha]['nome'];
+      email.innerHTML     = alunos['dados'][linha]['email'];
+      remover.innerHTML = "<center><button onclick=\"disableAluno('__ID__', '__TOKEN__', '" +
+        alunos['dados'][linha]['id_aluno']+"'); " +
+        "buscarMostrarAlunos( document.getElementById('tbalunos'), document.getElementById('nomemat').value);\"" +
+        "class='w3-button w3-red w3-round'>Remover</button></center>"
+    }
+  }
+</script>
+
+<title> AvA </title>
+</head>
+<body>
+
+<button class="tablink" onclick="openPage('Mural', this, 'lightskyblue')" id="defaultOpen">Mural</button>
+<button class="tablink" onclick="openPage('Turmas', this, 'lightgreen')">Turmas</button>
+<button class="tablink" onclick="openPage('Alunos', this, 'lightskyblue')">Alunos</button>
+<button class="tablink" onclick="openPage('Historico', this, 'lightseagreen')">Histórico</button>
+<button class="tablink" onclick="openPage('Configuracoes', this, 'lightsalmon')">Configurações</button>
+
+<div id="Mural" class="tabcontent">
+  <p>Aqui eh o mural, das atividades ativas</p>
+</div>
+
+<div id="Turmas" class="tabcontent">
+  <button onclick="cadastraAtualizaTurma('None', '', '', '')" class="w3-button w3-blue w3-round">Cadastrar Turma</button>
+  <div id="id01" class="w3-modal">
+    <div class="w3-modal-content">
+      <header id="mdAddEdTurma" class="w3-container">
+        <h2>Adicionar Turma</h2>
+      </header>
+      <div class="w3-container">
+        <span onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+        <label for="sigla">Sigla:</label>
+        <input type="text" id="cadsigla" name="cadsigla"> <br> <br>
+        <label for="nome">Nome:</label>
+        <input type="text" id="cadnome" name="cadnome"> <br> <br>
+        <label for="periodo">Período:</label>
+        <input type="text" id="cadperiodo" name="cadperiodo"> <br> <br>
+      </div>
+      <footer class="w3-container">
+        <button onclick="" id="btSalvar" class="w3-button w3-blue w3-round">Salvar</button>
+        <button onclick="document.getElementById('id01').style.display='none'" class="w3-button w3-blue w3-round">Cancelar</button>
+      </footer>
+      <br>
+    </div>
+  </div>
+
+  <div id="modalTurmaAlunos" class="w3-modal">
+    <div class="w3-modal-content">
+      <header id="modalTurmaAlunosHeader" class="w3-container">
+        <h2>Turma</h2>
+      </header>
+      <br>
+      <div class="w3-container">
+        <span onclick="document.getElementById('modalTurmaAlunos').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+        <label for="arquivoAlunos">Selecione um arquivo .csv com o formato gerado pelo SUAP:</label>
+        <br>
+        <input type="file" id="fileCsvAlunos" name="fileCsvAlunos" accept="text/csv"> 
+        <br>
+        <br>
+        <button onclick="carregaCsvAlunos(document.getElementById('fileCsvAlunos').files[0])" class="w3-button w3-blue w3-round">Cadastrar</button>
+        <button onclick="document.getElementById('modalTurmaAlunos').style.display='none'" class="w3-button w3-blue w3-round">Fechar</button>
+        <br>
+        <br>
+        <div class="w3-light-grey" id="divProgressBarCadAlunos">
+          <div class="w3-container w3-blue" id="progressBarCadAlunos" style="height:24px;width:0"></div>
+        </div>
+        <br>
+        <div style="overflow-x:auto;">
+          <table id="tableTurmasAlunos">
+            <tr>
+              <th>Matricula</th>
+              <th>Nome</th>
+              <!-- <th>E-mail</th>-->
+            </tr>
+          
+            <tr>
+              <td>Centro comercial Moctezuma</td>
+              <td>Francisco Chang</td>
+              <td>Mexico</td>
+            </tr>
+          </table> 
+        </div>
+      </div>
+      <br>
+      <footer class="w3-container">
+        <!-- <button onclick="document.getElementById('modalTurmaAlunos').style.display='none'" class="w3-button w3-blue w3-round">Fechar</button> -->
+      </footer>
+      <br>
+    </div>
+  </div>
+  <br>
+  <h2>Turmas ativas:</h2>
+  <div style="overflow-x:auto;">
+    <table id="turmas">
+      <tr>
+        <th></th>
+        <th></th>
+        <th>Sigla</th>
+        <th>Nome</th>
+        <th>Periodo</th>
+        <th></th>
+      </tr>
+    
+      <tr>
+        <td></td>
+        <td></td>
+        <td>Centro comercial Moctezuma</td>
+        <td>Francisco Chang</td>
+        <td>Mexico</td>
+        <td></td>
+      </tr>
+    </table> 
+  </div>
+  <script>
+  atualizaTabelaTurmas(document.getElementById("turmas"), turmas);
+  </script>
+</div>
+<!-- Aba responsável pelos dados dos alunos-->
+<div id="Alunos" class="tabcontent">
+  <div id="editarAluno" class="w3-modal">
+    <div class="w3-modal-content">
+      <header id="mdEditarAluno" class="w3-container">
+        <h2>Editar Aluno</h2>
+      </header>
+      <div class="w3-container">
+        <span onclick="document.getElementById('editarAluno').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+        <label for="matricula">Matrícula:</label>
+        <input type="text" id="cadMatricula" name="cadMatricula"> <br> <br>
+        <label for="nome">Nome:</label>
+        <input type="text" id="cadNomeAluno" name="cadNomeAluno"> <br> <br>
+        <label for="email">E-mail:</label>
+        <input type="text" id="cadEmail" name="cadEmail"> <br> <br>
+      </div>
+      <footer class="w3-container">
+        <button onclick="" id="btSalvarAluno" class="w3-button w3-blue w3-round">Salvar</button>
+        <button onclick="document.getElementById('editarAluno').style.display='none'" class="w3-button w3-blue w3-round">Cancelar</button>
+      </footer>
+      <br>
+    </div>
+  </div>
+  <h2>Procurar aluno</h2> 
+  <div class="w3-container">
+    <form action="javascript:buscarMostrarAlunos(
+      document.getElementById('tbalunos'), 
+      document.getElementById('nomemat').value);" method="post">
+    <label for="nomemat">Informe o nome ou matrícula ou e-mail:</label>
+    <input type="text" id="nomemat" name="nomemat"> <br> <br>
+    <button id="btBuscarAluno" class="w3-button w3-blue w3-round">Buscar</button>
+    </form>
+  </div>
+  <br>
+  <div style="overflow-x:auto;">
+    <table id="tbalunos">
+      <tr>
+        <th></th>
+        <th></th>
+        <th>Matrícula</th>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th></th>
+      </tr>
+    
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table> 
+  </div>
+  <script>
+    buscarMostrarAlunos(document.getElementById('tbalunos'), document.getElementById('nomemat').value);
+  </script>
+</div>
+<!-------------------------------------------->
+
+<div id="Historico" class="tabcontent">
+  <p>Aqui ficam todas as turmas já concluídas.</p>
+</div>
+
+<div id="Configuracoes" class="tabcontent">
+  <p>Esta aba não deve existir. Eh melhor por um menu hamburger no lugar dela.</p>
+</div>
+
+<script>
+function openPage(pageName,elmnt,color) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].style.backgroundColor = "";
+  }
+  document.getElementById(pageName).style.display = "block";
+  elmnt.style.backgroundColor = color;
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+   
+</body>
+</html> 
